@@ -45,7 +45,7 @@ Dates come from the blueprints, workplans and forcing notebooks. The last column
 | Experiment | Period | In this folder | Missing | Status | Read by |
 |---|---|---|---|---|---|
 | **Iceland2_dye_tracer** | July 2024, from the Iceland2 restart of 2024-07-17 13:00 | `passive_tracer_setup.ipynb`: adds the dye to that restart and zero dye to the boundary files | blueprint/workplan for the dye run (the original run, `Iceland2_NOMARBL_2024_DYE_2`, used the roms-tools setup) | partial | `sf6_model` |
-| **Iceland2_10min_velocity_output** | — | — | blueprint/workplan: Iceland2 with velocity output every 10 minutes | missing | not linked to a notebook yet |
+| **Iceland2_10min_velocity_output** | not run yet | — | blueprint/workplan: Iceland2 with velocity output every 10 minutes | missing | planned for the ADCP comparison in `velocity_analysis`, which for now reads `Iceland2_MARBL_2024_60m` |
 | **Iceland3_CDR_ens1** (July) | CDR forcing 2024-07-09 – 07-20 | `CDR_forcing_creation.ipynb` (ENS1) | workplan: the July run with `cdr_forcing_file` from the notebook | partial | `mixed_layer_depth`, `OAE_ensemble`, `oae_analysis` |
 | **Iceland3_CDR_ens2** (July) | CDR forcing 2024-07-11 – 07-22 | `CDR_forcing_creation.ipynb` (ENS2) | workplan, as for ens1 | partial | as ens1 |
 | **Iceland3_CDR_ens3** (July) | CDR forcing 2024-07-13 – 07-24 | `CDR_forcing_creation.ipynb` (ENS3) | workplan, as for ens1 | partial | as ens1 |
