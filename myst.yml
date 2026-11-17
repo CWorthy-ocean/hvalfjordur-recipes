@@ -1,0 +1,49 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  id: bfac26a8-1b58-4e32-9517-6341f5c03d38
+  title: Hvalfjörður recipes
+  description: Recipes to set up and run the nested ROMS-MARBL simulations of Hvalfjörður, Iceland, with C-Star, and notebooks to evaluate the model and analyze the ocean alkalinity enhancement experiments.
+  keywords: [oceanography, ROMS, MARBL, C-Star, CDR, ocean alkalinity enhancement]
+  authors: [Ulla K. Heede]
+  # github: https://github.com/CWorthy-Ocean/hvalfjordur-recipes  # set once the repository exists
+  exclude:
+    - archive/**
+  toc:
+    - file: docs/intro.md
+    - title: Model setup
+      children:
+        - file: setup/README.md
+        - file: setup/Iceland2/Iceland2_river_forcing.ipynb
+        - file: setup/Iceland2/passive_tracer_setup.ipynb
+        - file: setup/Iceland3/CDR_forcing_creation.ipynb
+    - title: Observations
+      children:
+        - file: data/obs_data_staging.ipynb
+    - title: Site and grids
+      children:
+        - file: analysis/site_description.ipynb
+        - file: analysis/grid_overview.ipynb
+        - file: analysis/wind_conditions.ipynb
+    - title: Model–observation comparison
+      children:
+        - file: analysis/ssh_comparison.ipynb
+        - file: analysis/velocity_analysis.ipynb
+        - file: analysis/ctd_comparison.ipynb
+        - file: analysis/bgc_analysis.ipynb
+        - file: analysis/pCO2_bias_calculation.ipynb
+        - file: analysis/sf6_observations.ipynb
+        - file: analysis/sf6_model.ipynb
+    - title: Model solution
+      children:
+        - file: analysis/model_solution.ipynb
+    - title: Ocean alkalinity enhancement
+      children:
+        - file: analysis/mixed_layer_depth.ipynb
+        - file: analysis/OAE_ensemble.ipynb
+        - file: analysis/oae_analysis.ipynb
+        - file: analysis/detectability_limits.ipynb
+site:
+  template: book-theme
+  options:
+    logo: images/logo/01-CWorthy-Wordmark-Red-RGB-SMALL.png

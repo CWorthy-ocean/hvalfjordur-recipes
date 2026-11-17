@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CWorthy-ocean/C-Star/refs/heads/main/docs/schemas/wp/workplan_schema.1.0.0.json
+name: Iceland0_glodap_woa
+description: Iceland0 2023-2024 with GLODAP/WOA BGC initial and boundary conditions, in three steps (spin-up, rest of 2023, 2024)
+state: draft
+
+steps:
+  - name: spin-up
+    application: roms_marbl
+    blueprint: &BPURI /anvil/scratch/x-uheede/cstar/iceland0_glodap_woa/output/B_cson_roms-marbl_v0.1_Iceland0_256procs_180dt_glodap-woa.yaml
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2023-01-01 00:00:00"
+        end_date: "2023-01-15 00:00:00"
+      namelist_overrides:
+        time_stepping:
+          dt: 20
+        pio_settings:
+          pio_stride: &PIO_STRIDE 64
+    compute_overrides:
+      slurm:
+        max_walltime: "12:00:00"
+        num_nodes: &NODES 4                # 16 x 16 = 256 ranks / 64 per node
+        cpus_per_node: &CPUS_PER_NODE 64
+
+  - name: year2023
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2023-01-15 00:00:00"
+        end_date: "2024-01-01 00:00:00"
+      namelist_overrides:
+        pio_settings:
+          pio_stride: *PIO_STRIDE
+    directives:
+      continue-from:
+        step: spin-up
+    compute_overrides:
+      slurm:
+        max_walltime: "30:00:00"
+        num_nodes: *NODES
+        cpus_per_node: *CPUS_PER_NODE
+    depends_on:
+    - spin-up
+
+  - name: year2024
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2024-01-01 00:00:00"
+        end_date: "2024-12-31 00:00:00"
+      namelist_overrides:
+        pio_settings:
+          pio_stride: *PIO_STRIDE
+    directives:
+      continue-from:
+        step: year2023
+    compute_overrides:
+      slurm:
+        max_walltime: "30:00:00"
+        num_nodes: *NODES
+        cpus_per_node: *CPUS_PER_NODE
+    depends_on:
+    - year2023

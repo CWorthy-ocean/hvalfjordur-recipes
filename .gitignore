@@ -1,0 +1,16 @@
+# Files from the old layout, kept locally only (see archive/README.md)
+archive/
+
+# Observational data downloaded and unpacked by data/obs_data_staging.ipynb
+data/raw/
+data/staged/
+
+# Build output and editor files
+**/_build
+**/__pycache__
+**/.ipynb_checkpoints
+.DS_Store
+
+# Scratch notebooks
+**/Untitled*.ipynb
+**/*-[Cc]opy*.ipynb

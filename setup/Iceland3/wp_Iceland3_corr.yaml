@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CWorthy-ocean/C-Star/refs/heads/main/docs/schemas/wp/workplan_schema.1.0.0.json
+#
+# Iceland3 (50 m Hvalfjordur child domain), November 2024, on Anvil with C-Star 0.16.1.
+#
+#   nest_ic   interpolates the corrected Iceland2 restart of 2024-11-01 onto the
+#             Iceland3 grid (the "nest conversion"), 2 h walltime
+#   iceland3  runs ROMS-MARBL for the month on 4 nodes x 64 MPI ranks = 256 ranks
+#             (16 x 16 tiles), dt = 6 s, MARBL every 18 s, pio_stride 64 (one
+#             I/O task per node), 36 h walltime
+#
+# The run ends on 2024-11-30 00:00, not 2024-12-01: the Iceland3 surface forcing
+# stops at 2024-11-30 02:00 and the blueprint's valid_end_date is 2024-11-30.
+#
+# Inputs were corrected for the Iceland2 ALK/DIC error with correct_alk_dic.py
+# (f = 0.51, rho = 1027).
+#
+# Check and run:
+#   (SLURM account ees260142 is set on each step below)
+#   cstar workplan check iceland3_nov2024_anvil.yaml
+#   cstar workplan run   iceland3_nov2024_anvil.yaml --run-id iceland3-nov2024
+#   cstar workplan status iceland3-nov2024
+name: iceland3-nov2024
+description: Iceland3 nested in corrected Iceland2 output, 2024-11-01 to 2024-11-30, Anvil
+state: draft
+
+compute_environment:
+  launcher: slurm
+  system: anvil
+
+steps:
+  - name: nest_ic
+    application: nest_ic
+    blueprint: inline
+    blueprint_overrides:
+      parent_grid: /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland2_NEW_customriver_Iceland2_NEW_256procs/input_data/Iceland2_NEW_customriver_Iceland2_NEW_256procs_grid.nc
+      parent_rst: /anvil/scratch/x-uheede/Iceland2_corrected/rst_files/output_rst.20241101000000.nc
+      child_grid: /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland3_256procs/input_data/Iceland3_256procs_grid.nc
+      pio: true
+    compute_overrides:
+      slurm:
+        account_name: ees260142
+        queue_name: wholenode
+        max_walltime: "02:00:00"
+
+  - name: iceland3
+    application: roms_marbl
+    blueprint: /anvil/scratch/x-uheede/Iceland3_corrected/blueprint/B_Iceland3_256procs_anvil.yaml
+    depends_on:
+      - nest_ic
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2024-11-01T00:00:00"
+        end_date: "2024-11-30T00:00:00"
+    directives:
+      continue-from:
+        step: nest_ic
+      nest-from:
+        path: /anvil/scratch/x-uheede/Iceland2_corrected/bry_files
+    compute_overrides:
+      slurm:
+        account_name: ees260142
+        queue_name: wholenode
+        num_cpus: 256
+        num_nodes: 4
+        cpus_per_node: 64
+        max_walltime: "36:00:00"

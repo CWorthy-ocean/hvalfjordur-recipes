@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CWorthy-ocean/C-Star/refs/heads/main/docs/schemas/wp/workplan_schema.1.0.0.json
+name: Iceland1_glodap_woa
+description: Iceland1 child domain 2023-2024, nested in the Iceland0_glodap_woa run (GLODAP/WOA BGC) for initial and boundary conditions
+state: draft
+
+# Outputs of the parent run (wp_Iceland0_glodap_woa.yaml); run this after it has finished.
+# Iceland0 steps: spin-up (2023-01-01 -> 01-15), year2023 (-> 2024-01-01), year2024 (-> 2024-12-31)
+
+steps:
+  - name: nest_conversion_Iceland0_Iceland1
+    application: nest_ic
+    blueprint: /anvil/projects/x-ees250129/cstar-forge-data/catalog/workplans/nest_ic_bp.yaml
+    blueprint_overrides:
+      parent_grid: /anvil/scratch/x-uheede/cstar/iceland0_glodap_woa/input_data/cson_roms-marbl_v0_1_Iceland0_256procs_180dt_glodap-woa_grid.nc
+      parent_rst: /anvil/scratch/x-uheede/cstar/workplan_runs/iceland0_glodap_woa/tasks/spin-up/output/output_rst.20230115000000.nc
+      child_grid: /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland1_256procs/input_data/Iceland1_256procs_grid.nc
+
+  - name: spin-up
+    application: roms_marbl
+    blueprint: &BPURI /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland1_256procs/blueprints/B_Iceland1_256procs.yaml
+    blueprint_overrides:
+      # Iceland1's blueprint pins ucla-roms 0.6.3, which holds at most 360 forcing
+      # files; nesting from a year of Iceland0 output needs ~730 child_bry files.
+      # 0.13.x lifted the cap to 10000 (ucla-roms #402).
+      code: &ROMS_CODE
+        roms:
+          commit: "0.13.1"
+      runtime_params:
+        start_date: "2023-01-15 00:00:00"
+        end_date: "2023-01-29 00:00:00"
+      namelist_overrides:
+        time_stepping:
+          dt: 20
+        pio_settings:
+          pio_stride: &PIO_STRIDE 64
+    directives:
+      continue-from:
+        step: nest_conversion_Iceland0_Iceland1
+      # all of Iceland0's child_bry output (spin-up, year2023, year2024) merged into one
+      # folder by merge_cdrgas_dirs.py: consecutive steps write files with the same
+      # name, which C-Star can't link side by side (FileExistsError)
+      nest-from:
+        path: &CHILD_BRY /anvil/scratch/x-uheede/cstar/workplan_runs/iceland0_glodap_woa/child_bry_merged
+    compute_overrides:
+      slurm:
+        max_walltime: "12:00:00"
+        num_nodes: &NODES 4                # 16 x 16 = 256 ranks / 64 per node
+        cpus_per_node: &CPUS_PER_NODE 64
+    depends_on:
+    - nest_conversion_Iceland0_Iceland1
+
+  - name: year2023
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      code: *ROMS_CODE
+      runtime_params:
+        start_date: "2023-01-29 00:00:00"
+        end_date: "2024-01-01 00:00:00"
+      namelist_overrides:
+        pio_settings:
+          pio_stride: *PIO_STRIDE
+        time_stepping:
+          dt: 60
+    directives:
+      continue-from:
+        step: spin-up
+      nest-from:
+        path: *CHILD_BRY
+    compute_overrides:
+      slurm:
+        max_walltime: "30:00:00"
+        num_nodes: *NODES
+        cpus_per_node: *CPUS_PER_NODE
+    depends_on:
+    - spin-up
+
+  - name: year2024
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      code: *ROMS_CODE
+      runtime_params:
+        start_date: "2024-01-01 00:00:00"
+        end_date: "2024-12-31 00:00:00"
+      namelist_overrides:
+        pio_settings:
+          pio_stride: *PIO_STRIDE
+        time_stepping:
+          dt: 60
+    directives:
+      continue-from:
+        step: year2023
+      nest-from:
+        path: *CHILD_BRY
+    compute_overrides:
+      slurm:
+        max_walltime: "30:00:00"
+        num_nodes: *NODES
+        cpus_per_node: *CPUS_PER_NODE
+    depends_on:
+    - year2023
