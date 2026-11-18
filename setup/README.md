@@ -102,6 +102,7 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
 | `Iceland2_timechuncked_customriver.yaml` | Workplan for the 2023–2024 run (`iceland2_customriver`): `nest_ic` from the `iceland1_new` restart of 2023-02-02 → spin-up → segments 1–8, each nested in the matching `iceland1_new` segment | present |
 | `Iceland2_physics_10min_velocity.forge_blueprint.yaml` | Physics-only (no MARBL) copy of the Iceland2 blueprint for July 2024: hourly restarts, 10-minute averages of u, v, w, no history or child-boundary output | draft |
 | `wp_Iceland2_10min_velocity.yaml` | Workplan for that run: starts from the `iceland2_customriver` restart of 2024-07-02, boundaries from `iceland1_new` segment7 | draft |
+| `make_river_ts_only.py` | Writes the temperature/salinity-only copy of the custom river file that the physics-only blueprint uses (a build without MARBL reads 2 river tracers; the original has 34) | present |
 | `wp_Iceland2_dye.yaml` | Workplan for the passive-tracer run used in `analysis/sf6_model.ipynb` | to add |
 
 ### `Iceland3/`
@@ -123,7 +124,7 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
 3. **Iceland2:**
    - **Base run:** run `Iceland2_river_forcing.ipynb`, forge the blueprint, then run `Iceland2_timechuncked_customriver.yaml`.
    - **Dye run:** run `passive_tracer_setup.ipynb` first.
-   - **10-minute velocity run:** forge `Iceland2_physics_10min_velocity.forge_blueprint.yaml`, then run `wp_Iceland2_10min_velocity.yaml` once the base run has written its July restarts.
+   - **10-minute velocity run:** make the T/S-only river file with `make_river_ts_only.py`, forge `Iceland2_physics_10min_velocity.forge_blueprint.yaml`, then run `wp_Iceland2_10min_velocity.yaml` once the base run has written its July restarts.
 4. **Iceland3:** build the river file, forge the blueprint, correct the Iceland2 ALK/DIC (`correct_alk_dic.py`), then run `wp_Iceland3_corr.yaml` (November) and the July workplan. For the OAE ensemble, run `CDR_forcing_creation.ipynb` and the ensemble workplan(s).
 5. Post-processing and figures: see `analysis/` (for the OAE ensemble: `mixed_layer_depth.ipynb` → `OAE_ensemble.ipynb` → `oae_analysis.ipynb`).
 

@@ -7,6 +7,9 @@
 #     param.ntrc_bio = 0; BGC surface forcing (UNIFIED, MBL_co2) removed; BGC output off
 #   - output: restarts every hour (one per file), 10-minute averages of u, v and w
 #     (zeta off), no history files, no child-boundary extraction for Iceland3
+#   - river custom_file: a temperature/salinity-only copy of the custom river file
+#     (Iceland2_river_combied_TS.nc, made with make_river_ts_only.py); forge stages a
+#     custom river file as it is, and a build without MARBL reads only 2 river tracers
 #   - provenance.content_hash cleared (this file is hand-edited)
 # Run with wp_Iceland2_10min_velocity.yaml.
 $schema: https://raw.githubusercontent.com/CWorthy-ocean/C-Star/refs/heads/main/docs/schemas/bp/forge/forge_schema.1.0.0.json
@@ -156,8 +159,8 @@ forcing:
     domain_edge_buffer: 20
     options: {}
     custom_file:
-      location: /anvil/projects/x-ees250129/x-uheede/INPUT_files/Iceland2_MARBL_2024/RT_EMOD/Iceland2_river_combied.nc
-      content_hash: 0c46eee6a89dfd5bcca894ac826b2d97a4cc3b4bc69c61090dafc4ba16863df6
+      location: /anvil/projects/x-ees250129/x-uheede/INPUT_files/Iceland2_MARBL_2024/RT_EMOD/Iceland2_river_combied_TS.nc
+      content_hash: 0c46eee6a89dfd5bcca894ac826b2d97a4cc3b4bc69c61090dafc4ba16863df6  # hash of the 34-tracer original; replace with the one make_river_ts_only.py prints
     surface_forcing_source: null
     river_temp_smoothing_window_days: 30.0
   resolved_datasets:
