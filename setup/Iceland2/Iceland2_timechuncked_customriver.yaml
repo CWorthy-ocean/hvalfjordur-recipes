@@ -1,0 +1,175 @@
+name: Iceland2_customriver
+description: workplan running a child domain
+state: draft
+
+steps:
+  - name: nest_conversion_Iceland1_Iceland2
+    application: nest_ic
+    blueprint: /anvil/projects/x-ees250129/cstar-forge-data/catalog/workplans/nest_ic_bp.yaml
+    blueprint_overrides:
+      parent_grid: /anvil/scratch/x-uheede/cstar/_forge_bp_runs/pio-dev_Iceland1_hires_256procs/input_data/pio-dev_Iceland1_hires_256procs_grid.nc
+      parent_rst: /anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment1/output/output_rst.20230202000000.nc
+      child_grid: /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland2_NEW_diags_Iceland2_NEW_256procs/input_data/Iceland2_NEW_diags_Iceland2_NEW_256procs_grid.nc
+
+  - name: spin-up
+    application: roms_marbl
+    blueprint: &BPURI /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland2_NEW_customriver_Iceland2_NEW_256procs/blueprints/B_Iceland2_NEW_customriver_Iceland2_NEW_256procs.yaml 
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2023-02-02 00:00:00"
+        end_date: "2023-02-15 00:00:00"
+      namelist_overrides:
+        time_stepping:
+          dt: 10
+    directives:
+      continue-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland2_customriver/tasks/nest_conversion_iceland1_iceland2"
+      nest-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment1/output/"
+    depends_on:
+    - nest_conversion_Iceland1_Iceland2
+   
+  - name: segment1
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2023-02-15 00:00:00"
+        end_date: "2023-04-01 00:00:00"
+    directives:
+      continue-from:
+        step: spin-up
+      nest-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment1/output/ ; /anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment2/output/"
+    depends_on:
+    - spin-up
+    
+  - name: segment2
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2023-04-01 00:00:00"
+        end_date: "2023-07-01 00:00:00"
+    directives:
+      continue-from:
+        step: segment1
+      nest-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment2/output/; /anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment3/output/"
+    depends_on:
+    - segment1
+
+  - name: segment3
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2023-09-30 00:00:00"
+        end_date: "2023-10-01 00:00:00"
+    directives:
+      continue-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland2_customriver/tasks/segment3/output/output_rst.20230930000000.nc"
+      nest-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment3/output/"
+    compute_overrides:
+      slurm:
+        max_walltime: "04:00:00"
+        num_nodes: 4
+        cpus_per_node: 64
+    depends_on:
+    - segment2
+    
+  - name: segment4
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2023-10-01 00:00:00"
+        end_date: "2024-01-01 00:00:00"
+    directives:
+      continue-from:
+        step: segment3
+      nest-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment4/output/"
+    compute_overrides:
+      slurm:
+        num_nodes: 4
+        cpus_per_node: 64
+    depends_on:
+    - segment3
+    
+  - name: segment5
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2024-01-01 00:00:00"
+        end_date: "2024-04-01 00:00:00"
+    directives:
+      continue-from:
+        step: segment4
+      nest-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment5/output/"
+    compute_overrides:
+      slurm:
+        num_nodes: 4
+        cpus_per_node: 64
+    depends_on:
+    - segment4
+    
+  - name: segment6
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2024-04-01 00:00:00"
+        end_date: "2024-07-01 00:00:00"
+    directives:
+      continue-from:
+        step: segment5
+      nest-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment6/output/"
+    compute_overrides:
+      slurm:
+        num_nodes: 4
+        cpus_per_node: 64
+    depends_on:
+    - segment5
+    
+  - name: segment7
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2024-07-01 00:00:00"
+        end_date: "2024-10-01 00:00:00"
+    directives:
+      continue-from:
+        step: segment6
+      nest-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment7/output/"
+    compute_overrides:
+      slurm:
+        num_nodes: 4
+        cpus_per_node: 64
+    depends_on:
+    - segment6
+    
+  - name: segment8
+    application: roms_marbl
+    blueprint: *BPURI
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2024-10-01 00:00:00"
+        end_date: "2024-12-31 00:00:00"
+    directives:
+      continue-from:
+        step: segment7
+      nest-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment8/output/"
+    compute_overrides:
+      slurm:
+        num_nodes: 4
+        cpus_per_node: 64
+    depends_on:
+    - segment7

@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CWorthy-ocean/C-Star/refs/heads/main/docs/schemas/wp/workplan_schema.1.0.0.json
+#
+# Iceland2_10min_velocity_output: Iceland2, physics only (no MARBL), 2024-07-02 to
+# 2024-08-01, for the ADCP comparison in analysis/velocity_analysis.ipynb.
+#
+# Output, set in Iceland2_physics_10min_velocity.forge_blueprint.yaml (not overridden here):
+#   - 10-minute averages of u, v and w, 144 records (one day) per file; no zeta
+#   - restarts every hour, one per file
+#   - no history files, no BGC output, no child-boundary files for Iceland3
+#
+# Initial state: the 2024-07-02 00:00 restart of the Iceland2 custom-river run
+#   (Iceland2_timechuncked_customriver.yaml, step segment7). continue-from sets the
+#   start date from the restart's file name, so start_date is not overridden. That run
+#   has MARBL; the physics-only build reads only the physical fields from the restart.
+# Boundaries: the same Iceland1 output that segment7 of the custom-river run nests from
+#   (iceland1_new, segment7: 2024-07-01 to 2024-10-01), which covers the whole run.
+#
+# Before running:
+#   1. forge Iceland2_physics_10min_velocity.forge_blueprint.yaml; it writes the run
+#      blueprint below (same _forge_bp_runs convention as the custom-river workplan)
+#   2. check that `application:` in that run blueprint matches the step's application
+#   3. cstar workplan check wp_Iceland2_10min_velocity.yaml
+name: Iceland2_10min_velocity
+description: Iceland2 physics only (no MARBL), 2024-07-02 to 2024-08-01, hourly restarts and 10-minute u, v, w averages
+state: draft
+
+steps:
+  - name: july2024
+    application: roms_marbl
+    blueprint: /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland2_physics_10min_velocity/blueprints/B_Iceland2_physics_10min_velocity.yaml
+    blueprint_overrides:
+      runtime_params:
+        end_date: "2024-08-01 00:00:00"
+    directives:
+      continue-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland2_customriver/tasks/segment7/output/output_rst.20240702000000.nc"
+      nest-from:
+        path: "/anvil/scratch/x-uheede/cstar/iceland1_new/tasks/segment7/output/"
+    compute_overrides:
+      slurm:
+        num_nodes: 4
+        cpus_per_node: 64

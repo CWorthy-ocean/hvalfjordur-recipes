@@ -26,6 +26,7 @@ These are the values in each forge blueprint; workplan steps can override the da
 Each experiment is listed with its status:
 - **complete**: every file needed to rerun it is in this folder;
 - **partial**: some files are present and others still have to be added;
+- **drafted**: the files are written but not yet forged or run;
 - **missing**: no setup files are here yet.
 
 Dates come from the blueprints, workplans and forcing notebooks. The last column names the analysis notebooks that read each experiment's output. Several of those notebooks still read the output of the older roms-tools runs (`Iceland2_MARBL_2024_60m`, `Iceland3_MARBL_2024`). They will have to be pointed at the C-Star runs once those are rerun.
@@ -35,8 +36,8 @@ Dates come from the blueprints, workplans and forcing notebooks. The last column
 | Experiment | Period | In this folder | Missing | Status | Read by |
 |---|---|---|---|---|---|
 | **Iceland0** | 2023-01-01 – 2024-12-31 | blueprint; workplan `wp_Iceland0_glodap_woa.yaml` | — | complete | `grid_overview` |
-| **Iceland1** | 2023-01-15 – 2024-12-31 (nested from the Iceland0 restart of 2023-01-15) | blueprint; workplan `wp_Iceland1_glodap_woa.yaml` | `merge_cdrgas_dirs.py`, which the workplan needs to read Iceland0's boundary output | partial | `grid_overview` |
-| **Iceland2** | 2023-02-01 – 2024-12-31 | blueprint (custom rivers); `Iceland2_river_forcing.ipynb` | workplan nesting Iceland2 in Iceland1 | partial | `ctd_comparison`, `bgc_analysis` (run `iceland2_customriver`); `ssh_comparison`, `velocity_analysis` and the pCO₂ mooring figure in `bgc_analysis` still read `Iceland2_MARBL_2024_60m` |
+| **Iceland1** | 2023-01-15 – 2024-12-31 (nested from the Iceland0 restart of 2023-01-15) | blueprint; workplan `wp_Iceland1_glodap_woa.yaml` | `merge_cdrgas_dirs.py`, which the workplan needs to read Iceland0's boundary output. Iceland2 nests in the run `iceland1_new` (forge blueprint `pio-dev_Iceland1_hires_256procs`); confirm whether these files describe that run, or add its blueprint and workplan | partial | `grid_overview` |
+| **Iceland2** | 2023-02-02 – 2024-12-31 | blueprint (custom rivers); `Iceland2_river_forcing.ipynb`; workplan `Iceland2_timechuncked_customriver.yaml` (run `iceland2_customriver`, nested in `iceland1_new`) | — | complete | `ctd_comparison`, `bgc_analysis` (run `iceland2_customriver`); `ssh_comparison`, `velocity_analysis` and the pCO₂ mooring figure in `bgc_analysis` still read `Iceland2_MARBL_2024_60m` |
 | **Iceland3_July** | July 2024 (the blueprint covers 2024-06-15 – 2024-11-30) | blueprint (custom rivers) | July workplan; `Iceland3_river_forcing.ipynb`; `correct_alk_dic.py`, if July nests in corrected Iceland2 output like November does | partial | `model_solution`, `wind_conditions` (older run `Iceland3_MARBL_2024`) |
 | **Iceland3_November** | 2024-11-01 – 2024-11-30 | blueprint; workplan `wp_Iceland3_corr.yaml` | `Iceland3_river_forcing.ipynb`; `correct_alk_dic.py`, which the workplan's ALK/DIC correction refers to | partial | `wind_conditions` (older run `Iceland3_MARBL_2024`) |
 
@@ -45,7 +46,7 @@ Dates come from the blueprints, workplans and forcing notebooks. The last column
 | Experiment | Period | In this folder | Missing | Status | Read by |
 |---|---|---|---|---|---|
 | **Iceland2_dye_tracer** | July 2024, from the Iceland2 restart of 2024-07-17 13:00 | `passive_tracer_setup.ipynb`: adds the dye to that restart and zero dye to the boundary files | blueprint/workplan for the dye run (the original run, `Iceland2_NOMARBL_2024_DYE_2`, used the roms-tools setup) | partial | `sf6_model` |
-| **Iceland2_10min_velocity_output** | not run yet | — | blueprint/workplan: Iceland2 with velocity output every 10 minutes | missing | planned for the ADCP comparison in `velocity_analysis`, which for now reads `Iceland2_MARBL_2024_60m` |
+| **Iceland2_10min_velocity_output** | 2024-07-02 – 2024-08-01 (not run yet), from the 2024-07-02 restart of `iceland2_customriver` | physics-only (no MARBL) blueprint `Iceland2_physics_10min_velocity.forge_blueprint.yaml`; workplan `wp_Iceland2_10min_velocity.yaml`: hourly restarts, 10-minute averages of u, v, w; boundaries as `iceland2_customriver` segment7 | — (drafts, not yet forged or run) | drafted | planned for the ADCP comparison in `velocity_analysis`, which for now reads `Iceland2_MARBL_2024_60m` |
 | **Iceland3_CDR_ens1** (July) | CDR forcing 2024-07-09 – 07-20 | `CDR_forcing_creation.ipynb` (ENS1) | workplan: the July run with `cdr_forcing_file` from the notebook | partial | `mixed_layer_depth`, `OAE_ensemble`, `oae_analysis` |
 | **Iceland3_CDR_ens2** (July) | CDR forcing 2024-07-11 – 07-22 | `CDR_forcing_creation.ipynb` (ENS2) | workplan, as for ens1 | partial | as ens1 |
 | **Iceland3_CDR_ens3** (July) | CDR forcing 2024-07-13 – 07-24 | `CDR_forcing_creation.ipynb` (ENS3) | workplan, as for ens1 | partial | as ens1 |
@@ -65,9 +66,8 @@ Each member has a 4-day (96 h) alkalinity release inside its forcing window.
 | Folder | File | Needed by |
 |---|---|---|
 | `Iceland1/` | `merge_cdrgas_dirs.py` | Iceland1 |
-| `Iceland2/` | Iceland2 workplan | Iceland2, and through nesting all Iceland3 experiments |
+| `Iceland1/` | blueprint and workplan of `iceland1_new`, the Iceland1 run Iceland2 nests in, if it is not the run the files here describe | Iceland2 and everything nested in it |
 | `Iceland2/` | dye-run workplan | Iceland2_dye_tracer |
-| `Iceland2/` | 10-minute velocity workplan | Iceland2_10min_velocity_output |
 | `Iceland3/` | `Iceland3_river_forcing.ipynb` | all Iceland3 experiments |
 | `Iceland3/` | `correct_alk_dic.py` | Iceland3_November (and Iceland3_July, if it uses the same correction) |
 | `Iceland3/` | July workplan | Iceland3_July, CDR ens1–3 |
@@ -99,9 +99,10 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
 | `Iceland2_NEW_customriver_Iceland2_NEW_256procs.forge_blueprint.yaml` | Forge blueprint nested in Iceland1, river forcing from a custom file | present |
 | `Iceland2_river_forcing.ipynb` | Builds the custom Iceland2 river forcing file | present |
 | `passive_tracer_setup.ipynb` | Adds a passive dye tracer to an Iceland2 run (initial and boundary files), the model analogue of the SF₆ release | present |
-| `wp_Iceland2_*.yaml` | Workplan for the 2023–2024 run nested in Iceland1 | to add |
+| `Iceland2_timechuncked_customriver.yaml` | Workplan for the 2023–2024 run (`iceland2_customriver`): `nest_ic` from the `iceland1_new` restart of 2023-02-02 → spin-up → segments 1–8, each nested in the matching `iceland1_new` segment | present |
+| `Iceland2_physics_10min_velocity.forge_blueprint.yaml` | Physics-only (no MARBL) copy of the Iceland2 blueprint for July 2024: hourly restarts, 10-minute averages of u, v, w, no history or child-boundary output | draft |
+| `wp_Iceland2_10min_velocity.yaml` | Workplan for that run: starts from the `iceland2_customriver` restart of 2024-07-02, boundaries from `iceland1_new` segment7 | draft |
 | `wp_Iceland2_dye.yaml` | Workplan for the passive-tracer run used in `analysis/sf6_model.ipynb` | to add |
-| `wp_Iceland2_10min_velocity.yaml` | Workplan for the Iceland2 run with 10-minute velocity output | to add |
 
 ### `Iceland3/`
 
@@ -119,7 +120,10 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
 
 1. **Iceland0:** run `wp_Iceland0_glodap_woa.yaml`.
 2. **Iceland1:** run `wp_Iceland1_glodap_woa.yaml`. Its `nest_ic` step interpolates the Iceland0 restart; its run steps read Iceland0's child boundary files.
-3. **Iceland2:** run `Iceland2_river_forcing.ipynb`, forge the blueprint, then run the (to be added) Iceland2 workplan. For the dye run, run `passive_tracer_setup.ipynb` first.
+3. **Iceland2:**
+   - **Base run:** run `Iceland2_river_forcing.ipynb`, forge the blueprint, then run `Iceland2_timechuncked_customriver.yaml`.
+   - **Dye run:** run `passive_tracer_setup.ipynb` first.
+   - **10-minute velocity run:** forge `Iceland2_physics_10min_velocity.forge_blueprint.yaml`, then run `wp_Iceland2_10min_velocity.yaml` once the base run has written its July restarts.
 4. **Iceland3:** build the river file, forge the blueprint, correct the Iceland2 ALK/DIC (`correct_alk_dic.py`), then run `wp_Iceland3_corr.yaml` (November) and the July workplan. For the OAE ensemble, run `CDR_forcing_creation.ipynb` and the ensemble workplan(s).
 5. Post-processing and figures: see `analysis/` (for the OAE ensemble: `mixed_layer_depth.ipynb` → `OAE_ensemble.ipynb` → `oae_analysis.ipynb`).
 
@@ -127,5 +131,6 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
 
 - **File names.** Blueprints are named after the forge run that produced them, which is why the names vary. A later clean-up could rename them to `Iceland{n}.forge_blueprint.yaml`; the `name:` and `working_dir:` fields inside would need the same change.
 - **Paths.** Workplans currently point at absolute Anvil paths: the run blueprints forge generated (`.../blueprints/B_*.yaml`), restart files and child-boundary folders. They document what was run, but cannot be used elsewhere as they are. Deciding whether to point them at the blueprints in this folder (or to document the forge step that produces each `B_*.yaml`) is open.
+- **Iceland1 parent of Iceland2.** `Iceland2_timechuncked_customriver.yaml` nests Iceland2 in the run `iceland1_new`, built from the forge blueprint `pio-dev_Iceland1_hires_256procs`. The Iceland1 blueprint and workplan in `Iceland1/` (`Iceland1_256procs`, `wp_Iceland1_glodap_woa.yaml`, run `iceland1_glodap_woa`) may describe a different run; this needs confirming.
 - **Model code.** The Iceland2 and Iceland3 blueprints use the `constant_Fe` branch of ucla-roms; Iceland0 and Iceland1 use `main`. The Iceland1 workplan overrides ucla-roms to 0.13.1, because it needs more than 360 boundary files.
 - The custom-forcing notebooks write NetCDF files whose paths go into the blueprints (`river` with `CUSTOM_FILE`, `cdr_forcing_file`). Those files are not stored in the repository.
