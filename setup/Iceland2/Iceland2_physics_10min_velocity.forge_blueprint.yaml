@@ -159,7 +159,7 @@ forcing:
     domain_edge_buffer: 20
     options: {}
     custom_file:
-      location: /anvil/projects/x-ees250129/x-uheede/INPUT_files/Iceland2_MARBL_2024/RT_EMOD/Iceland2_river_combied_TS.nc
+      location: /anvil/scratch/x-uheede/iceland2_10min_velocity/Iceland2_river_combied_TS.nc
       content_hash: 0c46eee6a89dfd5bcca894ac826b2d97a4cc3b4bc69c61090dafc4ba16863df6  # hash of the 34-tracer original; replace with the one make_river_ts_only.py prints
     surface_forcing_source: null
     river_temp_smoothing_window_days: 30.0

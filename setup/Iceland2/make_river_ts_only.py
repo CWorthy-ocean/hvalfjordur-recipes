@@ -12,10 +12,10 @@ the new file and records the new file's content hash.
 usage:
     python make_river_ts_only.py SRC.nc DST.nc [FORGE_BLUEPRINT.yaml]
 
-On Anvil:
+On Anvil (the copy only has to exist while forge runs; forge stages its own copy):
     python make_river_ts_only.py \
         /anvil/projects/x-ees250129/x-uheede/INPUT_files/Iceland2_MARBL_2024/RT_EMOD/Iceland2_river_combied.nc \
-        /anvil/projects/x-ees250129/x-uheede/INPUT_files/Iceland2_MARBL_2024/RT_EMOD/Iceland2_river_combied_TS.nc \
+        /anvil/scratch/x-uheede/iceland2_10min_velocity/Iceland2_river_combied_TS.nc \
         Iceland2_physics_10min_velocity.forge_blueprint.yaml
 """
 
@@ -65,6 +65,9 @@ def main():
     blueprint = sys.argv[3] if len(sys.argv) == 4 else None
     if os.path.exists(dst):
         sys.exit(f"{dst} already exists; remove it first")
+    dst_dir = os.path.dirname(os.path.abspath(dst))
+    if not os.access(dst_dir, os.W_OK):
+        sys.exit(f"cannot write to {dst_dir}; choose a destination in a folder you can write to")
 
     with xr.open_dataset(src, decode_times=False, decode_timedelta=False) as ds:
         if "ntracers" not in ds.sizes:
