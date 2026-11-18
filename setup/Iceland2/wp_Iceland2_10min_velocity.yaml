@@ -4,7 +4,8 @@
 # 2024-08-01, for the ADCP comparison in analysis/velocity_analysis.ipynb.
 #
 # Output, set in Iceland2_physics_10min_velocity.forge_blueprint.yaml (not overridden here):
-#   - 10-minute averages of u, v and w, 144 records (one day) per file; no zeta
+#   - 10-minute averages of u, v and w, 6 records (one hour) per file, because ucla-roms
+#     requires each averages file to end on a restart time; no zeta
 #   - restarts every hour, one per file
 #   - no history files, no BGC output, no child-boundary files for Iceland3
 #

@@ -5,8 +5,10 @@
 #   - run window 2024-07-01 to 2024-08-01
 #   - MARBL off: cppdefs.marbl, nhy_forcing, nox_forcing, co2_tvarying = false;
 #     param.ntrc_bio = 0; BGC surface forcing (UNIFIED, MBL_co2) removed; BGC output off
-#   - output: restarts every hour (one per file), 10-minute averages of u, v and w
-#     (zeta off), no history files, no child-boundary extraction for Iceland3
+#   - output: restarts every hour (one per file); 10-minute averages of u, v and w
+#     (zeta off), 6 records (one hour) per file, because ucla-roms requires each
+#     averages file to end on a restart time; no history files, no child-boundary
+#     extraction for Iceland3
 #   - river custom_file: a temperature/salinity-only copy of the custom river file
 #     (Iceland2_river_combied_TS.nc, made with make_river_ts_only.py); forge stages a
 #     custom river file as it is, and a build without MARBL reads only 2 river tracers
@@ -408,7 +410,7 @@ model_settings:
     wrt_hbbl: false
     wrt_file_avg: true
     output_period_avg: 600.0
-    nrpf_avg: 144
+    nrpf_avg: 6
     wrt_avg_z: false
     wrt_avg_ub: false
     wrt_avg_vb: false
