@@ -40,7 +40,7 @@ description: Iceland2 (MARBL) 2023-2024 nested in Iceland1_glodap_woa, rebuilt G
 application: forge
 state: notset
 schema_version: 1.0.0
-working_dir: ~/cstar/_forge_bp_runs/Iceland2_glodap_woa
+working_dir: /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland2_glodap_woa  # absolute on purpose: C-Star >= 0.16 drops ~/cstar/_forge_bp_runs/<name> as an old default
 forge_blueprint_version: 8
 run:
   start_date: '2023-02-01T00:00:00'
