@@ -15,6 +15,15 @@
 #   has MARBL; the physics-only build reads only the physical fields from the restart.
 # Boundaries: the same Iceland1 output that segment7 of the custom-river run nests from
 #   (iceland1_new, segment7: 2024-07-01 to 2024-10-01), which covers the whole run.
+# Grid: the custom-river run's grid, which the restart was written on (the grid override
+#   below). The grid forge writes for this blueprint has NaN depths. roms-tools 5.1.1
+#   blends Iceland1's depths into a nested grid near its boundaries (align_grids). Points
+#   outside the Iceland1 grid get NaN even where the blend weight is zero. Iceland2's top
+#   4 rows (1212 land points) lie about 0.3 km north of the Iceland1 grid, so ROMS
+#   reported NaN kinetic energy at step 0. Forge cannot take an existing grid for a
+#   nested domain. The forcing forge wrote is used as it is. It comes from the same
+#   grid_kwargs, so it has the same lat/lon. The only forcing roms-tools derives from the
+#   depth is the tidal currents, which ROMS doesn't read here (bry_tides off).
 #
 # Before running:
 #   1. forge Iceland2_physics_10min_velocity.forge_blueprint.yaml; it writes the run
@@ -32,6 +41,9 @@ steps:
     blueprint_overrides:
       runtime_params:
         end_date: "2024-08-01 00:00:00"
+      grid:
+        data:
+          - location: /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland2_NEW_customriver_Iceland2_NEW_256procs/input_data/Iceland2_NEW_customriver_Iceland2_NEW_256procs_grid.nc
     directives:
       continue-from:
         path: "/anvil/scratch/x-uheede/cstar/iceland2_customriver/tasks/segment7/output/output_rst.20240702000000.nc"
