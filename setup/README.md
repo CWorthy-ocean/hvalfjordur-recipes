@@ -50,9 +50,9 @@ Dates come from the blueprints, workplans and forcing notebooks. The last column
 | **Iceland3_CDR_ens1** (July) | CDR forcing 2024-07-09 – 07-20 | `CDR_forcing_creation.ipynb` (ENS1) | workplan: the July run with `cdr_forcing_file` from the notebook | partial | `mixed_layer_depth`, `OAE_ensemble`, `oae_analysis` |
 | **Iceland3_CDR_ens2** (July) | CDR forcing 2024-07-11 – 07-22 | `CDR_forcing_creation.ipynb` (ENS2) | workplan, as for ens1 | partial | as ens1 |
 | **Iceland3_CDR_ens3** (July) | CDR forcing 2024-07-13 – 07-24 | `CDR_forcing_creation.ipynb` (ENS3) | workplan, as for ens1 | partial | as ens1 |
-| **Iceland3_CDR_ens4** (November) | CDR forcing 2024-11-02 – 11-13 | `CDR_forcing_creation.ipynb` (ENS4) | workplan: the November run with `cdr_forcing_file` from the notebook | partial | as ens1 |
-| **Iceland3_CDR_ens5** (November) | CDR forcing 2024-11-06 – 11-17 | `CDR_forcing_creation.ipynb` (ENS5) | workplan, as for ens4 | partial | as ens1 |
-| **Iceland3_CDR_ens6** (November) | CDR forcing 2024-11-14 – 11-25 | `CDR_forcing_creation.ipynb` (ENS6) | workplan, as for ens4 | partial | as ens1 |
+| **Iceland3_CDR_ens4** (November) | 2024-11-02 – 11-16, from the `iceland3-nov2024` restart of 11-02; release records 11-05 – 11-08 | `CDR_forcing_creation.ipynb` (ENS4, and the 14-day C-Star file); `make_cdr_build.py`; workplan `wp_Iceland3_oae_ens4.yaml` | — (not run yet) | drafted | as ens1, once pointed at these runs: they write the CDR output as `*_cdr.*.nc`, where the analysis looks for `*_cstar.*.nc` |
+| **Iceland3_CDR_ens5** (November) | 2024-11-06 – 11-20; release records 11-09 06:00 – 11-12 06:00 | as ens4; workplan `wp_Iceland3_oae_ens5.yaml` | — (not run yet) | drafted | as ens4 |
+| **Iceland3_CDR_ens6** (November) | 2024-11-14 – 11-28; release records 11-17 – 11-20 | as ens4; workplan `wp_Iceland3_oae_ens6.yaml` | — (not run yet) | drafted | as ens4 |
 
 The CDR ensemble members go by different names in different places:
 - **ens*n*** in the manuscript;
@@ -71,7 +71,7 @@ Each member has a 4-day (96 h) alkalinity release inside its forcing window.
 | `Iceland3/` | `Iceland3_river_forcing.ipynb` | all Iceland3 experiments |
 | `Iceland3/` | `correct_alk_dic.py` | Iceland3_November (and Iceland3_July, if it uses the same correction) |
 | `Iceland3/` | July workplan | Iceland3_July, CDR ens1–3 |
-| `Iceland3/` | OAE ensemble workplan(s) with `cdr_forcing_file` | CDR ens1–6 |
+| `Iceland3/` | July OAE workplans, built like `wp_Iceland3_oae_ens4–6.yaml` on the July run | CDR ens1–3 |
 
 ## Contents by domain
 
@@ -97,7 +97,7 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
 | File | Role | Status |
 |---|---|---|
 | `Iceland2_NEW_customriver_Iceland2_NEW_256procs.forge_blueprint.yaml` | Forge blueprint nested in Iceland1, river forcing from a custom file | present |
-| `Iceland2_river_forcing.ipynb` | Builds the Iceland2 river forcing file on Anvil. GloFAS rivers (daily, roms-tools default BGC concentrations) plus the Hvalfjörður rivers (custom dataset, Table S1 concentrations); every river gets the 0–10 °C temperature cycle. Corrected version: the earlier one saved the Hvalfjörður rivers alone | present (not yet run) |
+| `Iceland2_river_forcing.ipynb` | Builds the Iceland2 river forcing file on Anvil. GloFAS rivers (daily, roms-tools default BGC concentrations) plus the Hvalfjörður rivers (custom dataset, Table S1 concentrations); every river gets the 0–10 °C temperature cycle. Corrected version: the earlier one saved the Hvalfjörður rivers alone | present (run on Anvil 2026-11-19) |
 | `passive_tracer_setup.ipynb` | Adds a passive dye tracer to an Iceland2 run (initial and boundary files), the model analogue of the SF₆ release | present |
 | `Iceland2_timechuncked_customriver.yaml` | Workplan for the 2023–2024 run (`iceland2_customriver`): `nest_ic` from the `iceland1_new` restart of 2023-02-02 → spin-up → segments 1–8, each nested in the matching `iceland1_new` segment | present |
 | `Iceland2_physics_10min_velocity.forge_blueprint.yaml` | Physics-only (no MARBL) copy of the Iceland2 blueprint for July 2024: hourly restarts, 10-minute averages of u, v, w, no history or child-boundary output | draft |
@@ -106,7 +106,8 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
 | `Iceland2_glodap_woa.forge_blueprint.yaml` | Forge blueprint for the Iceland2 rerun nested in `iceland1_glodap_woa`. Same grid and forcing as the custom-river blueprint, plus: the rebuilt river file; ucla-roms `constant_Fe` (1000 forcing files); `pio_stride` 64. Output: hourly history snapshots of zeta, ubar, vbar, u, v; daily snapshots of the BGC tracers and diagnostics (with `pH_3D`, without the `_ALT_CO2` diagnostics: no OAE in this run); daily restarts (T and S come from these) | draft |
 | `wp_Iceland2_glodap_woa.yaml` | Workplan for that run: `nest_ic` from the `iceland1_glodap_woa` restart of 2023-02-01 → spin-up to 2023-02-15 (dt 10 s, 12 h) → four segments to 2024-12-31 (dt 25 s, 48 h); 4 × 64 cores, allocation EES260142 | draft |
 | `link_forge_inputs.sh` | Hard-links the custom-river forge run's grid, surface, restoring and tidal inputs into the new forge working directory under the new names, so forge reuses them | present |
-| `gather_child_bry.py` | Collects Iceland1's child_bry files into one folder in time order, then gives each workplan step a folder of links to the files covering its dates | present || `wp_Iceland2_dye.yaml` | Workplan for the passive-tracer run used in `analysis/sf6_model.ipynb` | to add |
+| `gather_child_bry.py` | Collects Iceland1's child_bry files into one folder in time order, then gives each workplan step a folder of links to the files covering its dates | present |
+| `wp_Iceland2_dye.yaml` | Workplan for the passive-tracer run used in `analysis/sf6_model.ipynb` | to add |
 
 ### `Iceland3/`
 
@@ -114,11 +115,13 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
 |---|---|---|
 | `Iceland3_256procs.forge_blueprint.yaml` | Forge blueprint nested in Iceland2, river forcing from a custom file, no CDR forcing (`cdr: none`) | present |
 | `wp_Iceland3_corr.yaml` | Workplan: `nest_ic` from the corrected Iceland2 restart → November 2024 run | present |
-| `CDR_forcing_creation.ipynb` | Builds the OAE (alkalinity release) forcing for the ensemble members CDR1–6 | present |
+| `CDR_forcing_creation.ipynb` | Builds the OAE (alkalinity release) forcing for the ensemble members CDR1–6. Its last section writes the ENS4–6 files for the C-Star runs: the same releases on the C-Star Iceland3 grid, padded with zero flux to 15 days, CDF5 | present (C-Star section not yet run) |
+| `make_cdr_build.py` | Copies the compile-time folder of the `iceland3-nov2024` run blueprint and defines CDR_FORCING in its `cppdefs.opt`; the OAE workplans point `code.compile_time` at the copy | present |
+| `wp_Iceland3_oae_ens4.yaml`, `wp_Iceland3_oae_ens5.yaml`, `wp_Iceland3_oae_ens6.yaml` | OAE members ENS4–6 (CDR4–6): the `iceland3-nov2024` run blueprint from its restart at each member's start, for 14 days, with overrides for CDR forcing, the hourly CDR output stream and the BGC output the OAE analysis reads | draft |
 | `Iceland3_river_forcing.ipynb` | Builds the custom Iceland3 river forcing file. The code is still in `archive/notebooks/setup/setup_iceland3.ipynb` (river section). | to add |
 | `correct_alk_dic.py` | Corrects the Iceland2 ALK/DIC inputs (f = 0.51, ρ = 1027) before nesting; referenced by `wp_Iceland3_corr.yaml` | to add |
 | `wp_Iceland3_jul2024.yaml` | Workplan for the July 2024 run (the window of CDR1–3) | to add |
-| `wp_Iceland3_oae.yaml` (or one per member) | OAE ensemble CDR1–6: the July or November base run with the CDR forcing file from `CDR_forcing_creation.ipynb` | to add |
+| July OAE workplans | OAE members ENS1–3 (CDR1–3), built like the November ones on the July run | to add |
 
 ## Order of operations
 
@@ -129,7 +132,8 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
    - **Rerun nested in `iceland1_glodap_woa` (draft):** run `Iceland2_river_forcing.ipynb` on Anvil (it writes the river file), then `link_forge_inputs.sh --link` and forge `Iceland2_glodap_woa.forge_blueprint.yaml`. Then run `gather_child_bry.py` (Iceland1's child_bry files, one folder per step) and `../check_nest_bracketing.py`, and run `wp_Iceland2_glodap_woa.yaml`.
    - **Dye run:** run `passive_tracer_setup.ipynb` first.
    - **10-minute velocity run:** make the T/S-only river file with `make_river_ts_only.py`, forge `Iceland2_physics_10min_velocity.forge_blueprint.yaml`, then run `wp_Iceland2_10min_velocity.yaml` once the base run has written its July restarts.
-4. **Iceland3:** build the river file, forge the blueprint, correct the Iceland2 ALK/DIC (`correct_alk_dic.py`), then run `wp_Iceland3_corr.yaml` (November) and the July workplan. For the OAE ensemble, run `CDR_forcing_creation.ipynb` and the ensemble workplan(s).
+4. **Iceland3:** build the river file, forge the blueprint, correct the Iceland2 ALK/DIC (`correct_alk_dic.py`), then run `wp_Iceland3_corr.yaml` (November) and the July workplan.
+   - **November OAE members (ENS4–6):** run the last section of `CDR_forcing_creation.ipynb` (the 14-day C-Star files). Run `make_cdr_build.py` on the `iceland3-nov2024` run blueprint (the CDR_FORCING build). Then run `wp_Iceland3_oae_ens4.yaml`, `wp_Iceland3_oae_ens5.yaml` and `wp_Iceland3_oae_ens6.yaml`; each is independent.
 5. Post-processing and figures: see `analysis/` (for the OAE ensemble: `mixed_layer_depth.ipynb` → `OAE_ensemble.ipynb` → `oae_analysis.ipynb`).
 
 ## Conventions and open points
@@ -139,4 +143,12 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
 - **Iceland1 parent of Iceland2.** `Iceland2_timechuncked_customriver.yaml` nests Iceland2 in the run `iceland1_new`, built from the forge blueprint `pio-dev_Iceland1_hires_256procs`. The Iceland1 blueprint and workplan in `Iceland1/` (`Iceland1_256procs`, `wp_Iceland1_glodap_woa.yaml`, run `iceland1_glodap_woa`) may describe a different run; this needs confirming.
 - **Model code.** The Iceland2 and Iceland3 blueprints use the `constant_Fe` branch of ucla-roms; Iceland0 and Iceland1 use `main`. The Iceland1 workplan overrides ucla-roms to 0.13.1, because it needs more than 360 boundary files. Since commit `fc2b6d84`, `constant_Fe` reads up to 1000 forcing files instead of 360. Pin the branch name, not a commit hash. For any ref that isn't a release tag, Forge writes the newest (0.9+) namelist. At run time, C-Star maps a commit hash to the release it descends from (0.8.0) and rejects that namelist. The 0.9+ namelist names the CDR tracer output section `CDR_LITE_OUTPUT_SETTINGS`, so `constant_Fe` (0.8.0-based) has to run without its `CDR_TRACER_OUTPUT_SETTINGS`. It aborted on that until the branch learned to treat the missing section as output off. ROMS ignores files past the limit without an error, so each step of `wp_Iceland2_glodap_woa.yaml` reads only its own share of Iceland1's boundary files (about 370 per six months).
 - **Iceland2 river file.** The earlier version of `Iceland2_river_forcing.ipynb` wrote `riv` (the 16 Hvalfjörður rivers alone) as `Iceland2_river_combied.nc`, the file the `iceland2_customriver` runs used, not the GloFAS + Hvalfjörður combination it computed. Its combination step had bugs as well: overlapping `river_index` numbers, and GloFAS volumes left in place inside the fjord. Its last run (2026-09-11) also predates its Table S1 nutrient values. The notebook is corrected; `Iceland2_glodap_woa` uses its output. Table S1 describes the Hvalfjörður rivers; the GloFAS rivers carry the roms-tools default concentrations.
-- The custom-forcing notebooks write NetCDF files whose paths go into the blueprints (`river` with `CUSTOM_FILE`, `cdr_forcing_file`). Those files are not stored in the repository.
+- **OAE members without forge.** The OAE members are the base run plus a release, so they need no forge blueprint of their own. Each workplan reuses the base run's run blueprint and overrides four things:
+  - the compile-time folder (`make_cdr_build.py`): CDR_FORCING is a cppdef, which only `cppdefs.opt` can set;
+  - `cdr_forcing`, the release file;
+  - the namelist groups `cdr_frc_settings` and `cdr_output_settings`;
+  - the MARBL output lists.
+
+  The CDR output stops ROMS at startup unless the MARBL diagnostics list includes FG_CO2, FG_ALT_CO2, pCO2SURF, pCO2SURF_ALT_CO2, CO3, CO3_ALT_CO2, co3_sat_arag, co3_sat_calc, zsatarag and zsatcalc. ROMS stops when model time passes the last record of any forcing file, so a CDR file has to reach past the end of its run.
+- **CDR output stream name.** The earlier runs wrote the CDR output stream as `*_cstar.*.nc`; ucla-roms now writes it as `*_cdr.*.nc` (`CDR_OUTPUT_SETTINGS`). `OAE_ensemble.ipynb` looks for `cstar` files.
+- The custom-forcing notebooks write NetCDF files whose paths go into the blueprints (`river` with `CUSTOM_FILE`, `cdr_forcing_file`) or the workplans (`cdr_forcing`). Those files are not stored in the repository.
