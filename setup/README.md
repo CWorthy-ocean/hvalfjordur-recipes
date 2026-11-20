@@ -38,7 +38,7 @@ Dates come from the blueprints, workplans and forcing notebooks. The last column
 | **Iceland0** | 2023-01-01 – 2024-12-31 | blueprint; workplan `wp_Iceland0_glodap_woa.yaml` | — | complete | `grid_overview` |
 | **Iceland1** | 2023-01-15 – 2024-12-31 (nested from the Iceland0 restart of 2023-01-15) | blueprint; workplan `wp_Iceland1_glodap_woa.yaml` | `merge_cdrgas_dirs.py`, which the workplan needs to read Iceland0's boundary output. Iceland2 nests in the run `iceland1_new` (forge blueprint `pio-dev_Iceland1_hires_256procs`); confirm whether these files describe that run, or add its blueprint and workplan | partial | `grid_overview` |
 | **Iceland2** | 2023-02-02 – 2024-12-31 | blueprint (custom rivers); `Iceland2_river_forcing.ipynb`; workplan `Iceland2_timechuncked_customriver.yaml` (run `iceland2_customriver`, nested in `iceland1_new`). Rerun nested in `iceland1_glodap_woa`, drafted: `Iceland2_glodap_woa.forge_blueprint.yaml`, `wp_Iceland2_glodap_woa.yaml` | rerun: the rebuilt river file (run the corrected `Iceland2_river_forcing.ipynb` on Anvil) | complete | `ctd_comparison`, `bgc_analysis` (run `iceland2_customriver`); `ssh_comparison`, `velocity_analysis` and the pCO₂ mooring figure in `bgc_analysis` still read `Iceland2_MARBL_2024_60m` |
-| **Iceland3_July** | July 2024 (the blueprint covers 2024-06-15 – 2024-11-30) | blueprint (custom rivers) | July workplan; `Iceland3_river_forcing.ipynb`; `correct_alk_dic.py`, if July nests in corrected Iceland2 output like November does | partial | `model_solution`, `wind_conditions` (older run `Iceland3_MARBL_2024`) |
+| **Iceland3_July** | July 2024 (the blueprint covers 2024-06-15 – 2024-11-30). Run on Tanagra as `iceland3-jul2024`; its output is copied to Anvil (`/home/x-uheede/S/cstar/Iceland3_july_output/iceland3-jul2024`) | blueprint (custom rivers) | the July workplan used on Tanagra; `Iceland3_river_forcing.ipynb`; `correct_alk_dic.py`, if July nests in corrected Iceland2 output like November does | partial | `model_solution`, `wind_conditions` (older run `Iceland3_MARBL_2024`) |
 | **Iceland3_November** | 2024-11-01 – 2024-11-30 | blueprint; workplan `wp_Iceland3_corr.yaml` | `Iceland3_river_forcing.ipynb`; `correct_alk_dic.py`, which the workplan's ALK/DIC correction refers to | partial | `wind_conditions` (older run `Iceland3_MARBL_2024`) |
 
 ### Speciality experiments
@@ -47,10 +47,10 @@ Dates come from the blueprints, workplans and forcing notebooks. The last column
 |---|---|---|---|---|---|
 | **Iceland2_dye_tracer** | July 2024, from the Iceland2 restart of 2024-07-17 13:00 | `passive_tracer_setup.ipynb`: adds the dye to that restart and zero dye to the boundary files | blueprint/workplan for the dye run (the original run, `Iceland2_NOMARBL_2024_DYE_2`, used the roms-tools setup) | partial | `sf6_model` |
 | **Iceland2_10min_velocity_output** | 2024-07-02 – 2024-08-01 (not run yet), from the 2024-07-02 restart of `iceland2_customriver` | physics-only (no MARBL) blueprint `Iceland2_physics_10min_velocity.forge_blueprint.yaml`; workplan `wp_Iceland2_10min_velocity.yaml`: hourly restarts, 10-minute averages of u, v, w; boundaries as `iceland2_customriver` segment7 | — (drafts, not yet forged or run) | drafted | planned for the ADCP comparison in `velocity_analysis`, which for now reads `Iceland2_MARBL_2024_60m` |
-| **Iceland3_CDR_ens1** (July) | CDR forcing 2024-07-09 – 07-20 | `CDR_forcing_creation.ipynb` (ENS1) | workplan: the July run with `cdr_forcing_file` from the notebook | partial | `mixed_layer_depth`, `OAE_ensemble`, `oae_analysis` |
-| **Iceland3_CDR_ens2** (July) | CDR forcing 2024-07-11 – 07-22 | `CDR_forcing_creation.ipynb` (ENS2) | workplan, as for ens1 | partial | as ens1 |
-| **Iceland3_CDR_ens3** (July) | CDR forcing 2024-07-13 – 07-24 | `CDR_forcing_creation.ipynb` (ENS3) | workplan, as for ens1 | partial | as ens1 |
-| **Iceland3_CDR_ens4** (November) | 2024-11-02 – 11-16, from the `iceland3-nov2024` restart of 11-02; release records 11-05 – 11-08 | `CDR_forcing_creation.ipynb` (ENS4, and the 14-day C-Star file); `make_cdr_build.py`; workplan `wp_Iceland3_oae_ens4.yaml` | — (not run yet) | drafted | as ens1, once pointed at these runs: they write the CDR output as `*_cdr.*.nc`, where the analysis looks for `*_cstar.*.nc` |
+| **Iceland3_CDR_ens1** (July) | 2024-07-09 – 07-23, from the `iceland3-jul2024` restart of 07-09; release records 07-12 – 07-15 | `CDR_forcing_creation.ipynb` (ENS1, and the 14-day C-Star file); `make_cdr_build.py` (the November build); workplan `wp_Iceland3_oae_ens1.yaml` | — (not run yet) | drafted | `mixed_layer_depth`, `OAE_ensemble`, `oae_analysis`, once pointed at these runs (see "OAE analysis of the C-Star runs" below) |
+| **Iceland3_CDR_ens2** (July) | 2024-07-11 – 07-25; release records 07-14 – 07-17 | as ens1; workplan `wp_Iceland3_oae_ens2.yaml` | — (not run yet) | drafted | as ens1 |
+| **Iceland3_CDR_ens3** (July) | 2024-07-13 – 07-27; release records 07-16 – 07-19 | as ens1; workplan `wp_Iceland3_oae_ens3.yaml` | — (not run yet) | drafted | as ens1 |
+| **Iceland3_CDR_ens4** (November) | 2024-11-02 – 11-16, from the `iceland3-nov2024` restart of 11-02; release records 11-05 – 11-08 | `CDR_forcing_creation.ipynb` (ENS4, and the 14-day C-Star file); `make_cdr_build.py`; workplan `wp_Iceland3_oae_ens4.yaml` | — (not run yet) | drafted | as ens1 |
 | **Iceland3_CDR_ens5** (November) | 2024-11-06 – 11-20; release records 11-09 06:00 – 11-12 06:00 | as ens4; workplan `wp_Iceland3_oae_ens5.yaml` | — (not run yet) | drafted | as ens4 |
 | **Iceland3_CDR_ens6** (November) | 2024-11-14 – 11-28; release records 11-17 – 11-20 | as ens4; workplan `wp_Iceland3_oae_ens6.yaml` | — (not run yet) | drafted | as ens4 |
 
@@ -70,8 +70,7 @@ Each member has a 4-day (96 h) alkalinity release inside its forcing window.
 | `Iceland2/` | dye-run workplan | Iceland2_dye_tracer |
 | `Iceland3/` | `Iceland3_river_forcing.ipynb` | all Iceland3 experiments |
 | `Iceland3/` | `correct_alk_dic.py` | Iceland3_November (and Iceland3_July, if it uses the same correction) |
-| `Iceland3/` | July workplan | Iceland3_July, CDR ens1–3 |
-| `Iceland3/` | July OAE workplans, built like `wp_Iceland3_oae_ens4–6.yaml` on the July run | CDR ens1–3 |
+| `Iceland3/` | the July workplan used on Tanagra (`iceland3-jul2024`) | Iceland3_July |
 
 ## Contents by domain
 
@@ -115,13 +114,13 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
 |---|---|---|
 | `Iceland3_256procs.forge_blueprint.yaml` | Forge blueprint nested in Iceland2, river forcing from a custom file, no CDR forcing (`cdr: none`) | present |
 | `wp_Iceland3_corr.yaml` | Workplan: `nest_ic` from the corrected Iceland2 restart → November 2024 run | present |
-| `CDR_forcing_creation.ipynb` | Builds the OAE (alkalinity release) forcing for the ensemble members CDR1–6. Its last section writes the ENS4–6 files for the C-Star runs: the same releases on the C-Star Iceland3 grid, padded with zero flux to 15 days, CDF5 | present (C-Star section not yet run) |
-| `make_cdr_build.py` | Copies the compile-time folder of the `iceland3-nov2024` run blueprint and defines CDR_FORCING in its `cppdefs.opt`; the OAE workplans point `code.compile_time` at the copy | present |
+| `CDR_forcing_creation.ipynb` | Builds the OAE (alkalinity release) forcing for the ensemble members CDR1–6. Its last two sections write the files for the C-Star runs of ENS4–6 and ENS1–3: the same releases on the C-Star Iceland3 grid, padded with zero flux to 15 days, CDF5 | present (C-Star sections not yet run) |
+| `make_cdr_build.py` | Copies the compile-time folder of the `iceland3-nov2024` run blueprint and defines CDR_FORCING in its `cppdefs.opt`; all six OAE workplans point `code.compile_time` at the copy | present |
 | `wp_Iceland3_oae_ens4.yaml`, `wp_Iceland3_oae_ens5.yaml`, `wp_Iceland3_oae_ens6.yaml` | OAE members ENS4–6 (CDR4–6): the `iceland3-nov2024` run blueprint from its restart at each member's start, for 14 days, with overrides for CDR forcing, the hourly CDR output stream and the BGC output the OAE analysis reads | draft |
+| `wp_Iceland3_oae_ens1.yaml`, `wp_Iceland3_oae_ens2.yaml`, `wp_Iceland3_oae_ens3.yaml` | OAE members ENS1–3 (CDR1–3), set up like ENS4–6: the same run blueprint and overrides, from a restart of the July run (`iceland3-jul2024`, run on Tanagra), nested in Iceland2 boundary files that cover July | draft |
 | `Iceland3_river_forcing.ipynb` | Builds the custom Iceland3 river forcing file. The code is still in `archive/notebooks/setup/setup_iceland3.ipynb` (river section). | to add |
 | `correct_alk_dic.py` | Corrects the Iceland2 ALK/DIC inputs (f = 0.51, ρ = 1027) before nesting; referenced by `wp_Iceland3_corr.yaml` | to add |
-| `wp_Iceland3_jul2024.yaml` | Workplan for the July 2024 run (the window of CDR1–3) | to add |
-| July OAE workplans | OAE members ENS1–3 (CDR1–3), built like the November ones on the July run | to add |
+| `wp_Iceland3_jul2024.yaml` | Workplan for the July 2024 run (`iceland3-jul2024`, run on Tanagra; the window of CDR1–3) | to add |
 
 ## Order of operations
 
@@ -134,6 +133,7 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
    - **10-minute velocity run:** make the T/S-only river file with `make_river_ts_only.py`, forge `Iceland2_physics_10min_velocity.forge_blueprint.yaml`, then run `wp_Iceland2_10min_velocity.yaml` once the base run has written its July restarts.
 4. **Iceland3:** build the river file, forge the blueprint, correct the Iceland2 ALK/DIC (`correct_alk_dic.py`), then run `wp_Iceland3_corr.yaml` (November) and the July workplan.
    - **November OAE members (ENS4–6):** run the last section of `CDR_forcing_creation.ipynb` (the 14-day C-Star files). Run `make_cdr_build.py` on the `iceland3-nov2024` run blueprint (the CDR_FORCING build). Then run `wp_Iceland3_oae_ens4.yaml`, `wp_Iceland3_oae_ens5.yaml` and `wp_Iceland3_oae_ens6.yaml`; each is independent.
+   - **July OAE members (ENS1–3):** run the "July members for the C-Star runs" section of `CDR_forcing_creation.ipynb`. The CDR_FORCING build of the November members must exist. Check each workplan with `../check_nest_bracketing.py`, then run `wp_Iceland3_oae_ens1.yaml`, `wp_Iceland3_oae_ens2.yaml` and `wp_Iceland3_oae_ens3.yaml`; each is independent.
 5. Post-processing and figures: see `analysis/` (for the OAE ensemble: `mixed_layer_depth.ipynb` → `OAE_ensemble.ipynb` → `oae_analysis.ipynb`).
 
 ## Conventions and open points
@@ -150,5 +150,7 @@ Each domain folder is self-contained: its blueprint, its workplan(s), and any in
   - the MARBL output lists.
 
   The CDR output stops ROMS at startup unless the MARBL diagnostics list includes FG_CO2, FG_ALT_CO2, pCO2SURF, pCO2SURF_ALT_CO2, CO3, CO3_ALT_CO2, co3_sat_arag, co3_sat_calc, zsatarag and zsatcalc. ROMS stops when model time passes the last record of any forcing file, so a CDR file has to reach past the end of its run.
-- **CDR output stream name.** The earlier runs wrote the CDR output stream as `*_cstar.*.nc`; ucla-roms now writes it as `*_cdr.*.nc` (`CDR_OUTPUT_SETTINGS`). `OAE_ensemble.ipynb` looks for `cstar` files.
+- **OAE analysis of the C-Star runs.** Two things change when the analysis notebooks are pointed at the C-Star OAE runs:
+  - The earlier runs wrote the CDR output stream as `*_cstar.*.nc`; ucla-roms now writes it as `*_cdr.*.nc` (`CDR_OUTPUT_SETTINGS`). `OAE_ensemble.ipynb` looks for `cstar` files.
+  - `release_start_hours` in `oae_analysis.ipynb` counts from each member's first model record. Each C-Star member starts at the start of its forcing window, so the flux begins 48 h in (54 h for CDR5). The November values (48, 54, 48 h) already fit; the July ones (36, 70, 70 h) are those of the earlier runs and become 48 h.
 - The custom-forcing notebooks write NetCDF files whose paths go into the blueprints (`river` with `CUSTOM_FILE`, `cdr_forcing_file`) or the workplans (`cdr_forcing`). Those files are not stored in the repository.

@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CWorthy-ocean/C-Star/refs/heads/main/docs/schemas/wp/workplan_schema.1.0.0.json
+#
+# Iceland3 OAE member ENS3 (CDR3 in the analysis notebooks): the July 2024 Iceland3 run
+# (iceland3-jul2024, run on Tanagra) from its 2024-07-13 00:00 restart, with the ENS3
+# alkalinity release of CDR_forcing_creation.ipynb, for 14 days (2024-07-13 to 2024-07-27).
+#
+# Release: 0.0005 m3/s of water at 10 C, salinity 1 and ALK 1,180,000 meq/m3, at 64.394 N,
+# 21.466 W, 2 m deep. The forcing records with that flux are 2024-07-16 to 07-19; ROMS ramps
+# linearly between records. 172.8 m3 and about 2.0e5 mol of alkalinity in all.
+#
+# Set up like the November members; wp_Iceland3_oae_ens4.yaml explains each override. The run
+# blueprint is the Anvil one of iceland3-nov2024, whose inputs cover 2024-06-15 to 2024-11-30.
+# The CDR_FORCING build, the CDR output and the BGC output lists are the same as November's.
+# What differs:
+#   - continue-from: a restart of the July run, done on Tanagra and copied to Anvil
+#   - nest-from: Iceland2 boundary files that cover July
+#   - cdr_forcing: the 14-day ENS3 file from the "July members for the C-Star runs" section of
+#     CDR_forcing_creation.ipynb (15 days long, like the November files)
+#
+# Before running (once for ENS1-3):
+#   1. run the "July members for the C-Star runs" section of CDR_forcing_creation.ipynb
+#   2. the CDR_FORCING build must exist: step 2 under "Before running" in wp_Iceland3_oae_ens4.yaml
+#   3. check that the restart under continue-from exists, and that the boundary files cover the
+#      run: python ../check_nest_bracketing.py wp_Iceland3_oae_ens3.yaml
+#
+# Check and run:
+#   cstar workplan check wp_Iceland3_oae_ens3.yaml
+#   cstar workplan run   wp_Iceland3_oae_ens3.yaml --run-id iceland3-oae-ens3
+name: iceland3-oae-ens3
+description: Iceland3 OAE member ENS3 (CDR3), 2024-07-13 to 2024-07-27, branched from iceland3-jul2024
+state: draft
+
+compute_environment:
+  launcher: slurm
+  system: anvil
+
+steps:
+  - name: ens3
+    application: roms_marbl
+    blueprint: /anvil/scratch/x-uheede/Iceland3_corrected/blueprint/B_Iceland3_256procs_anvil.yaml
+    blueprint_overrides:
+      runtime_params:
+        start_date: "2024-07-13T00:00:00"
+        end_date: "2024-07-27T00:00:00"
+      code:
+        compile_time:
+          location: /anvil/scratch/x-uheede/iceland3_oae_nov2024/compile-time-cdr
+      cdr_forcing:
+        data:
+          - location: /anvil/scratch/x-uheede/iceland3_oae_jul2024/Iceland3_cdr_forcing_ENS3_14d.nc
+      namelist_overrides:
+        cdr_frc_settings:
+          cdr_source: true
+          cdr_volume: true
+          cdr_ncdr_parm: 1
+          cdr_forcing_parameterized: true
+          cdr_forcing_depth_profiles: false
+          cdr_forcing_3d: false
+          cdr_time_interpolation: true
+          cdr_relocate_to_wet_pts: true
+        cdr_output_settings:
+          do_cdr_output: true
+          wrt_cdr_avg: true
+          cdr_monthly_averages: false
+          output_period_cdr: 3600
+          nrpf_cdr: 24
+        marbl_biogeochemistry_settings:
+          marbl_tracers_to_write: [PO4, NO3, SiO3, NH4, Fe, O2, DIC, DIC_ALT_CO2, ALK, ALK_ALT_CO2, spChl, diatChl]
+          marbl_diagnostics_to_write: [PH, PH_ALT_CO2, pH_3D, pCO2SURF, pCO2SURF_ALT_CO2, FG_CO2, FG_ALT_CO2,
+                                       CO3, CO3_ALT_CO2, co3_sat_arag, co3_sat_calc, zsatarag, zsatcalc]
+    directives:
+      continue-from:
+        path: /home/x-uheede/S/cstar/Iceland3_july_output/iceland3-jul2024/tasks/iceland3/output/output_rst.20240713000000.nc
+      nest-from:
+        path: /anvil/scratch/x-uheede/Iceland2_corrected/bry_files
+    compute_overrides:
+      slurm:
+        account_name: ees260142
+        queue_name: wholenode
+        num_cpus: 256
+        num_nodes: 4
+        cpus_per_node: 64
+        max_walltime: "24:00:00"
