@@ -19,10 +19,9 @@
 # (about 370 for six months). C-Star hands ROMS every file in the folder, and this
 # ucla-roms build reads at most 1000 forcing files; all of Iceland1's files are about 1400.
 #
-# Grid: the custom-river run's grid, which Iceland2_river_forcing.ipynb also used. It is
-# set as child_grid in nest_conversion and with a grid override in each ROMS step. The
-# grid forge writes for this blueprint has NaN depths in its top 4 rows; see the note in
-# wp_Iceland2_10min_velocity.yaml.
+# Grid: the custom-river run's grid, which link_forge_inputs.sh hard-links into this
+# blueprint's forge folder. Don't let forge make a new one (e.g. with --clobber): roms-tools
+# 5.1.1 writes NaN depths in its top 4 rows; see the note in wp_Iceland2_10min_velocity.yaml.
 #
 # Before running
 #   1. run Iceland2_river_forcing.ipynb (writes the river file), bash link_forge_inputs.sh --link,
@@ -42,7 +41,7 @@ steps:
     blueprint_overrides:
       parent_grid: /anvil/scratch/x-uheede/cstar/blueprint_runs/forge/iceland1_256procs/input_data/Iceland1_256procs_grid.nc
       parent_rst: /anvil/scratch/x-uheede/cstar/workplan_runs/iceland1_glodap_woa/tasks/year2023/output/output_rst.20230201000000.nc
-      child_grid: &GRID_FILE /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland2_NEW_customriver_Iceland2_NEW_256procs/input_data/Iceland2_NEW_customriver_Iceland2_NEW_256procs_grid.nc
+      child_grid: /anvil/scratch/x-uheede/cstar/_forge_bp_runs/Iceland2_glodap_woa/input_data/Iceland2_glodap_woa_grid.nc
     compute_overrides:
       slurm:
         account_name: &ACCOUNT ees260142
@@ -57,9 +56,6 @@ steps:
       namelist_overrides:
         time_stepping:
           dt: 10
-      grid: &GRID
-        data:
-          - location: *GRID_FILE
     directives:
       continue-from:
         step: nest_conversion_Iceland1_Iceland2
@@ -81,7 +77,6 @@ steps:
       runtime_params:
         start_date: "2023-02-15 00:00:00"
         end_date: "2023-07-01 00:00:00"
-      grid: *GRID
       namelist_overrides: &DT
         time_stepping:
           dt: 25
@@ -106,7 +101,6 @@ steps:
       runtime_params:
         start_date: "2023-07-01 00:00:00"
         end_date: "2024-01-01 00:00:00"
-      grid: *GRID
       namelist_overrides: *DT
     directives:
       continue-from:
@@ -124,7 +118,6 @@ steps:
       runtime_params:
         start_date: "2024-01-01 00:00:00"
         end_date: "2024-07-01 00:00:00"
-      grid: *GRID
       namelist_overrides: *DT
     directives:
       continue-from:
@@ -142,7 +135,6 @@ steps:
       runtime_params:
         start_date: "2024-07-01 00:00:00"
         end_date: "2024-12-31 00:00:00"
-      grid: *GRID
       namelist_overrides: *DT
     directives:
       continue-from:
