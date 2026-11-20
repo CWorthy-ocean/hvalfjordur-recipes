@@ -5,8 +5,10 @@
 # alkalinity release of CDR_forcing_creation.ipynb, for 14 days (2024-11-02 to 2024-11-16).
 #
 # Release: 0.0005 m3/s of water at 10 C, salinity 1 and ALK 1,180,000 meq/m3, at 64.394 N,
-# 21.466 W, 2 m deep. The forcing records with that flux are 2024-11-05 to 11-08; ROMS ramps
-# linearly between records. 172.8 m3 and about 2.0e5 mol of alkalinity in all.
+# 21.466 W, 2 m deep. The forcing records with that flux are 2024-11-05 to 11-08. ROMS holds
+# each record's value until the next one (cdr_time_interpolation off), so the release switches
+# on at 11-05 00:00 and off at 11-09 00:00, 72 to 168 h into the run. 172.8 m3 and about
+# 2.0e5 mol of alkalinity in all.
 #
 # The run blueprint, boundaries, time step, partitioning and compute are those of iceland3-nov2024.
 # The overrides below add the release and its output:
@@ -16,8 +18,9 @@
 #     CDR_forcing_creation.ipynb; it holds 15 days, since ROMS stops once model time passes the
 #     last record of a forcing file
 #   - cdr_frc_settings: CDR forcing on; a volume release (cdr_volume) at the file's location
-#     (parameterized), interpolated linearly in time. The linear ramp matches the release start
-#     times in oae_analysis.ipynb (48-54 h into each run).
+#     (parameterized), not interpolated in time: ROMS holds each record's value until the
+#     next, so the flux switches on and off at the records, as the roms-tools release plot
+#     shows. With cdr_time_interpolation on it would ramp over the day before and after.
 #   - cdr_output_settings: the CDR output stream on, hourly averages, 24 per file. This is the
 #     "cstar" stream of the earlier runs (ALK_source and the other *_source fields, FG_CO2 and
 #     FG_ALT_CO2, int_z_ALK, ...); ucla-roms now writes it to <root>_cdr.*.nc
@@ -66,7 +69,7 @@ steps:
           cdr_forcing_parameterized: true
           cdr_forcing_depth_profiles: false
           cdr_forcing_3d: false
-          cdr_time_interpolation: true
+          cdr_time_interpolation: false
           cdr_relocate_to_wet_pts: true
         cdr_output_settings:
           do_cdr_output: true

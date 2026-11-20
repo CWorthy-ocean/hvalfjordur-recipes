@@ -5,8 +5,10 @@
 # alkalinity release of CDR_forcing_creation.ipynb, for 14 days (2024-07-09 to 2024-07-23).
 #
 # Release: 0.0005 m3/s of water at 10 C, salinity 1 and ALK 1,180,000 meq/m3, at 64.394 N,
-# 21.466 W, 2 m deep. The forcing records with that flux are 2024-07-12 to 07-15; ROMS ramps
-# linearly between records. 172.8 m3 and about 2.0e5 mol of alkalinity in all.
+# 21.466 W, 2 m deep. The forcing records with that flux are 2024-07-12 to 07-15. ROMS holds
+# each record's value until the next one (cdr_time_interpolation off), so the release switches
+# on at 07-12 00:00 and off at 07-16 00:00, 72 to 168 h into the run. 172.8 m3 and about
+# 2.0e5 mol of alkalinity in all.
 #
 # Set up like the November members; wp_Iceland3_oae_ens4.yaml explains each override. The run
 # blueprint is the Anvil one of iceland3-nov2024, whose inputs cover 2024-06-15 to 2024-11-30.
@@ -56,7 +58,7 @@ steps:
           cdr_forcing_parameterized: true
           cdr_forcing_depth_profiles: false
           cdr_forcing_3d: false
-          cdr_time_interpolation: true
+          cdr_time_interpolation: false
           cdr_relocate_to_wet_pts: true
         cdr_output_settings:
           do_cdr_output: true
